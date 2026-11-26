@@ -39,16 +39,11 @@ namespace SalvageSprint.Core
             {
                 return new Decision(TaskKind.Explore, -1, "No candidate found, exploring");
             }
-            // This also works, but its a little more strange and the solution above is better
-            /*if (facts.RetainedTarget == true)
+            if (facts.RetainedTarget == true)
             {
-                return facts.HasUsableTarget
-                    ? new Decision(TaskKind.Collect, facts.SelectedTargetId, "Collecting retained target")
-                    : new Decision(TaskKind.Explore, -1, "No candidate: visit the next survey point");
-            }*/
-            return facts.HasUsableTarget
-                ? new Decision(TaskKind.Collect, facts.SelectedTargetId, "Nearest candidate; reselected each tick")
-                : new Decision(TaskKind.Explore, -1, "No candidate: visit the next survey point");
+                return new Decision(TaskKind.Collect, facts.SelectedTargetId, "Collecting retained target");
+            }
+            return new Decision(TaskKind.Collect, facts.SelectedTargetId, "Nearest candidate; reselected each tick");
         }
     }
 }
