@@ -17,6 +17,7 @@ namespace SalvageSprint.Core
             float distance = float.PositiveInfinity;
             foreach (Candidate candidate in observation.Candidates)
             {
+                if (candidate.Blocked) { continue; }
                 if (candidate.Id == observation.CurrentTargetId && candidate.Available)
                 {
                     return new AgentFacts(false, candidate.Id, true);
@@ -34,12 +35,17 @@ namespace SalvageSprint.Core
         {
             if (facts.NeedsDelivery)
                 return new Decision(TaskKind.Deliver, -1, "Cargo held: return to depot");
-            if (facts.RetainedTarget == true)
+            if (!facts.HasUsableTarget)
+            {
+                return new Decision(TaskKind.Explore, -1, "No candidate found, exploring");
+            }
+            // This also works, but its a little more strange and the solution above is better
+            /*if (facts.RetainedTarget == true)
             {
                 return facts.HasUsableTarget
                     ? new Decision(TaskKind.Collect, facts.SelectedTargetId, "Collecting retained target")
                     : new Decision(TaskKind.Explore, -1, "No candidate: visit the next survey point");
-            }
+            }*/
             return facts.HasUsableTarget
                 ? new Decision(TaskKind.Collect, facts.SelectedTargetId, "Nearest candidate; reselected each tick")
                 : new Decision(TaskKind.Explore, -1, "No candidate: visit the next survey point");
