@@ -17,6 +17,10 @@ namespace SalvageSprint.Core
             float distance = float.PositiveInfinity;
             foreach (Candidate candidate in observation.Candidates)
             {
+                if (candidate.Id == observation.CurrentTargetId && candidate.Available)
+                {
+                    return new AgentFacts(false, candidate.Id, true);
+                }
                 // Deliberately naive: ignores Visible, Remembered and Blocked.
                 if (candidate.Available && candidate.DistanceSquared < distance && (candidate.Remembered == true || candidate.Visible == true))
                 { nearest = candidate.Id; distance = candidate.DistanceSquared; }
@@ -30,6 +34,12 @@ namespace SalvageSprint.Core
         {
             if (facts.NeedsDelivery)
                 return new Decision(TaskKind.Deliver, -1, "Cargo held: return to depot");
+            if (facts.RetainedTarget == true)
+            {
+                return facts.HasUsableTarget
+                    ? new Decision(TaskKind.Collect, facts.SelectedTargetId, "Collecting retained target")
+                    : new Decision(TaskKind.Explore, -1, "No candidate: visit the next survey point");
+            }
             return facts.HasUsableTarget
                 ? new Decision(TaskKind.Collect, facts.SelectedTargetId, "Nearest candidate; reselected each tick")
                 : new Decision(TaskKind.Explore, -1, "No candidate: visit the next survey point");
